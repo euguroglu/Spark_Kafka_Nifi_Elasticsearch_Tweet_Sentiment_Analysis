@@ -1,0 +1,2 @@
+spark-submit kafka_tweet_producer.py
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1 twitter_structured_stream_nifi_spark_kafka_elasticsearch.py
