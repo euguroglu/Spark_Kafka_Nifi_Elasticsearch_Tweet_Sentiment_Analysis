@@ -55,23 +55,22 @@ if __name__ == "__main__":
 
     transformed_df.printSchema()
 
-    average_df = transformed_df.withWatermark('timestamp', '5 minute') \
-                               .groupBy(window(col('timestamp'), '1 minute')) \
-                               .agg(avg('sentimental_score').alias('average_sentimental_score'))
+    average_df = transformed_df.select(avg('sentimental_score').alias('average_sentimental_score'))
+
 
     evaluated_df = average_df.withColumn('status', eval_udf('average_sentimental_score')) \
                              .withColumn('timestamp', to_timestamp(lit(current_timestamp()))) \
                              .withColumn('date', to_date(col('timestamp')))
 
-    # evaluated_df.printSchema()
-    #
+    evaluated_df.printSchema()
+
     # kafka_df = evaluated_df.select("*")
     #
     # kafka_target_df = kafka_df.selectExpr("status as key",
     #                                              "to_json(struct(*)) as value")
     #
     # kafka_target_df.printSchema()
-
+    #
     # nifi_query = kafka_target_df \
     #         .writeStream \
     #         .queryName("Notification Writer") \
@@ -88,8 +87,6 @@ if __name__ == "__main__":
     .format("console") \
     .outputMode("complete") \
     .option("checkpointLocation", "chk-point-dir") \
-    .option("format","append") \
-    .option("path","C:/Users/PC/Documents/Jupyter/Job_Interview_Cases/Hepsiburada/Unzip/data/") \
     .trigger(processingTime="1 minute") \
     .start()
 
