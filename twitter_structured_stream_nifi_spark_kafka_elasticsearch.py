@@ -64,30 +64,30 @@ if __name__ == "__main__":
 
     evaluated_df.printSchema()
 
-    # kafka_df = evaluated_df.select("*")
-    #
-    # kafka_target_df = kafka_df.selectExpr("status as key",
-    #                                              "to_json(struct(*)) as value")
-    #
-    # kafka_target_df.printSchema()
-    #
-    # nifi_query = kafka_target_df \
-    #         .writeStream \
-    #         .queryName("Notification Writer") \
-    #         .format("kafka") \
-    #         .option("kafka.bootstrap.servers", "localhost:9092") \
-    #         .option("topic", "twitter2") \
-    #         .outputMode("complete") \
-    #         .option("checkpointLocation", "chk-point-dir") \
-    #         .start()
-    #
-    # nifi_query.awaitTermination()
+    kafka_df = evaluated_df.select("*")
 
-    window_query = evaluated_df.writeStream \
-    .format("console") \
-    .outputMode("complete") \
-    .option("checkpointLocation", "chk-point-dir") \
-    .trigger(processingTime="1 minute") \
-    .start()
+    kafka_target_df = kafka_df.selectExpr("status as key",
+                                                 "to_json(struct(*)) as value")
 
-    window_query.awaitTermination()
+    kafka_target_df.printSchema()
+    
+    nifi_query = kafka_target_df \
+            .writeStream \
+            .queryName("Notification Writer") \
+            .format("kafka") \
+            .option("kafka.bootstrap.servers", "localhost:9092") \
+            .option("topic", "twitter2") \
+            .outputMode("complete") \
+            .option("checkpointLocation", "chk-point-dir") \
+            .start()
+
+    nifi_query.awaitTermination()
+
+    # window_query = evaluated_df.writeStream \
+    # .format("console") \
+    # .outputMode("complete") \
+    # .option("checkpointLocation", "chk-point-dir") \
+    # .trigger(processingTime="1 minute") \
+    # .start()
+    #
+    # window_query.awaitTermination()
